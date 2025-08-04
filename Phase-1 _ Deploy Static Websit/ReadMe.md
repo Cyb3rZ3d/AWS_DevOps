@@ -62,9 +62,6 @@
     - Deploy app to EC2 if tests pass
 
 
-
-
-
 # Project 3: DevSecOps Security Integration
 
 - Add Trivy and Checkov scans to GitHub Actions

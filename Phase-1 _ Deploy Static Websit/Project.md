@@ -300,7 +300,7 @@ Phases:
         ![alt text](image-23.png)
 
 
-Provide detailed instructions for Part 3: GitHub Actions CI/CD
+### *** Part 3: GitHub Actions CI/CD***
 
 
 1.  Prepare EC2 for GitHub Deployment
@@ -334,5 +334,89 @@ type 'C:\Users\rubva\Documents\AWS Keys\Ubuntu_Keys\github-actions-key.pub' | ss
 
 4. Create GitHub Actions Workflow
 
+    - In project root, `C:\Dev\flask-docker-app`, verify the following are in the directory:
+
+            terraform
+            app.py
+            Dockerfile
+            requirements.txt
+            
+    - Create `.github/workflows` Folder
+
+            mkdir .github\workflows
+
+    - Create the Workflow file
+
+            notepad .github\workflows\ci-cd.yml
+
+        ![alt text](image-24.png)
+
+    - Commit and Push to GitHub
+
+            git remote add origin https://github.com/<your-username>/flask-docker-app.git
+
+    - Add and Commit Files
+
+            git add .
+            git commit -m "Initial commit with Docker, Terraform, and CI/CD workflow"
+
+    - Push Files to GitHub
+
+            git branch -M main
+            git push -u origin main
+
+        - After pushing files with `git push -u origin main`, I received error's my file was too large.  After initial research using google, I found that I needed to stop and reset:
+
+            - Remove Large Files from Git History
+
+                    # Unstage everything
+                    git reset
+
+                    # Remove the .terraform folder from Git tracking
+                    git rm -r --cached .terraform
+
+                    # Commit removal
+                    git commit -m "Remove .terraform directory from repository"
+
+            - Create .gitignore file in your project root:
+
+                    notepad .gitignore
 
 
+                    - Add the following to the file:
+
+                    # Terraform
+                    .terraform/
+                    *.tfstate
+                    *.tfstate.*
+                    crash.log
+                    terraform.tfvars
+
+                    # Python
+                    __pycache__/
+                    *.pyc
+
+                    # Docker
+                    *.env
+
+            - Still receiving the error when I repeated `git push -u origin main`.  Furthering some research, I found that it's still due to a large file stuck in the repo and that I should try using `Git-Filter-Repo`.  This was still an issue as I was attempting to clone the program but the program wasn't executing.  Another workaround was to use `BFG Repo Cleaner`.  After downloading this program, and saved the program in my root of `C:\Dev\flask-docker-app`.  Attempting to use the program I discovered it was still failing.  Turn's out this was a Java discrepency that I needed to install Java 11 or newer since my current Java install was Java 8.  Now that I have been able to install the correct Java version, I can proceed to using `BFG Repo Cleaner`:
+
+                    Run BFG to Remove .terraform committe
+                    java -jar bfg.jar --delete-folders .terraform --no-blob-protection
+
+                    Clean and Prune:
+                    git reflog expire --expire=now --all
+                    git gc --prune=now --aggressive
+
+                    Force Push Clean History:
+                    git push origin main --force
+
+                - BFG rewrites the entire commit history removing the large file completely.
+
+                - After this, .terraform/ must stay in .gitignore so it won’t happen again.
+            
+
+
+
+
+http://54.161.235.208/
